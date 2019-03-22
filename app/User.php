@@ -2,38 +2,77 @@
 
 namespace App;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Collection;
+use Showdown\Database\HasTimestamps;
+use Showdown\Database\Model;
 
-class User extends Authenticatable
+class User extends Model
 {
-    use Notifiable;
+    use HasTimestamps;
+
+    protected function profile()
+    {
+        return $this->hasOne(Profile::class);;
+    }
+
+    protected function locations()
+    {
+        return $this->hasMany(Location::class);
+    }
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
+     * @return string|null
      */
-    protected $fillable = [
-        'name', 'email', 'password',
-    ];
+    public function getEmail(): ?string
+    {
+        return $this->getAttribute('email');
+    }
 
     /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
+     * @param string $email
      */
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
+    public function setEmail(string $email): void
+    {
+        $this->setAttribute('email', $email);
+    }
 
     /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
+     * @return Profile|null
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    public function getProfile(): ?Profile
+    {
+        return $this->getRelationValue('profile');
+    }
+
+    /**
+     * @param Profile $profile
+     */
+    public function setProfile(Profile $profile)
+    {
+        $this->setRelation('profile', $profile);
+    }
+
+    /**
+     * @return Collection|null
+     */
+    public function getLocations(): ?Collection
+    {
+        return $this->getRelationValue('locations');
+    }
+
+    /**
+     * @param Collection $locations
+     */
+    public function setLocations(Collection $locations)
+    {
+        $this->setRelation('locations', $locations);
+    }
+
+    /**
+     * @param Location $locations
+     */
+    public function addLocation(Location $locations)
+    {
+        $this->setRelation('locations', $locations);
+    }
 }
